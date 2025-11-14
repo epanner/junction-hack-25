@@ -13,5 +13,4 @@ async def lifespan(app: FastAPI):
         if denso:
             await denso.close()
 
-app = FastAPI(lifespan=lifespan)
-
+app = FastAPI(lifespan=lifespan, title="GridPass Backend API", version="0.1.0")
