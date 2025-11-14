@@ -1,3 +1,17 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from adapters.denso_did import DensoDIDClient
+from config import settings
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global denso
+    denso = DensoDIDClient(base_url=settings.denso_base_url)
+    try:
+        yield
+    finally:
+        if denso:
+            await denso.close()
+
+app = FastAPI(lifespan=lifespan)
+
