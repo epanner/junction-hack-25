@@ -152,3 +152,65 @@ def find_nearest_station(lat: float, lon: float) -> Optional[Tuple[Dict[str, Any
 
     return best_station, best_distance
 
+
+def _pricing_rate_for_power(power_kw: float) -> float:
+    if power_kw <= 25:
+        return 0.25
+    if power_kw <= 150:
+        return 0.34
+    if power_kw <= 350:
+        return 0.42
+    return 0.47
+
+
+def _format_price_string(power_kw: float) -> str:
+    rate = _pricing_rate_for_power(power_kw)
+    return f"€{rate:.2f}/kWh"
+
+
+def build_station_card(
+    station: Dict[str, Any],
+    user_lat: Optional[float] = None,
+    user_lon: Optional[float] = None,
+) -> Dict[str, Any]:
+    connectors = station.get("connectors", [])
+    total = len(connectors)
+    available = sum(1 for c in connectors if c["status"] == "available")
+    max_power = max((c.get("power_kw", 0) for c in connectors), default=0)
+    price = _format_price_string(max_power)
+    power_label = f"Up to {int(max_power)} kW" if max_power else "N/A"
+
+    distance = None
+    if user_lat is not None and user_lon is not None:
+        coords = station["location"]
+        distance_km = _haversine_km(user_lat, user_lon, coords["latitude"], coords["longitude"])
+        distance = f"{distance_km:.1f} km"
+
+    return {
+        "id": station["station_id"],
+        "name": station["name"],
+        "lat": station["location"]["latitude"],
+        "lng": station["location"]["longitude"],
+        "available": available,
+        "total": total,
+        "power": power_label,
+        "price": price,
+        "distance": distance,
+        "address": station["location"]["address"],
+    }
+
+
+def get_station_cards(
+    user_lat: Optional[float] = None,
+    user_lon: Optional[float] = None,
+    radius_km: Optional[float] = None,
+) -> List[Dict[str, Any]]:
+    cards: List[Dict[str, Any]] = []
+    for station in CHARGING_STATIONS.values():
+        card = build_station_card(station, user_lat, user_lon)
+        if radius_km is not None and card["distance"] is not None:
+            distance_value = float(card["distance"].split()[0])
+            if distance_value > radius_km:
+                continue
+        cards.append(card)
+    return cards
