@@ -21,6 +21,7 @@ export function DriverScreen() {
   const [userLocation, setUserLocation] = useState(getDefaultLocation());
   const [locating, setLocating] = useState(true);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [stationsRefreshKey, setStationsRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -50,7 +51,7 @@ export function DriverScreen() {
     let cancelled = false;
     async function loadStations() {
       try {
-        const data = await getChargingStations(userLocation.lat, userLocation.lng, 50);
+        const data = await getChargingStations(userLocation.lat, userLocation.lng, 100);
         if (!cancelled) {
           setStations(data);
         }
@@ -68,7 +69,7 @@ export function DriverScreen() {
     return () => {
       cancelled = true;
     };
-  }, [userLocation.lat, userLocation.lng]);
+  }, [userLocation.lat, userLocation.lng, stationsRefreshKey]);
 
   const selectedStation = selectedStationId 
     ? stations.find(s => s.id === selectedStationId) || null
@@ -83,6 +84,7 @@ export function DriverScreen() {
 
   const handleBook = () => {
     setIsSheetExpanded(false);
+    setStationsRefreshKey((prev) => prev + 1);
   };
 
   const handleSmartModeChange = (smartMode: boolean) => {

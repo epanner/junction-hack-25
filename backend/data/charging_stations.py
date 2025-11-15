@@ -226,6 +226,102 @@ CHARGING_STATIONS: Dict[str, Dict[str, Any]] = {
             },
         ],
     },
+    "did:itn:charger:helsinki-airport": {
+        "station_id": "did:itn:charger:helsinki-airport",
+        "name": "Helsinki Airport UltraFast",
+        "location": {
+            "city": "Vantaa",
+            "country": "FI",
+            "address": "Lentäjäntie 1",
+            "latitude": 60.3172,
+            "longitude": 24.9685,
+        },
+        "operator": "Finnavia Charging",
+        "connectors": [
+            {
+                "connector_id": "airport-hpc-1",
+                "type": "CCS2",
+                "power_kw": 350,
+                "status": "available",
+            },
+            {
+                "connector_id": "airport-hpc-2",
+                "type": "CCS2",
+                "power_kw": 350,
+                "status": "available",
+            },
+            {
+                "connector_id": "airport-type2",
+                "type": "Type2",
+                "power_kw": 11,
+                "status": "occupied",
+            },
+        ],
+    },
+    "did:itn:charger:espoo-south-harbor": {
+        "station_id": "did:itn:charger:espoo-south-harbor",
+        "name": "Espoo South Harbor",
+        "location": {
+            "city": "Espoo",
+            "country": "FI",
+            "address": "Satamatie 5",
+            "latitude": 60.1491,
+            "longitude": 24.7012,
+        },
+        "operator": "Southern Grid Cooperative",
+        "connectors": [
+            {
+                "connector_id": "south-ccs",
+                "type": "CCS2",
+                "power_kw": 120,
+                "status": "available",
+            },
+            {
+                "connector_id": "south-type2-a",
+                "type": "Type2",
+                "power_kw": 22,
+                "status": "available",
+            },
+            {
+                "connector_id": "south-type2-b",
+                "type": "Type2",
+                "power_kw": 22,
+                "status": "available",
+            },
+        ],
+    },
+    "did:itn:charger:helsinki-techpark": {
+        "station_id": "did:itn:charger:helsinki-techpark",
+        "name": "Helsinki Tech Park",
+        "location": {
+            "city": "Helsinki",
+            "country": "FI",
+            "address": "Tekniikantie 30",
+            "latitude": 60.1845,
+            "longitude": 24.8123,
+        },
+        "operator": "Nordic Innovate Charge",
+        "connectors": [
+            {
+                "connector_id": "techpark-ccs-a",
+                "type": "CCS2",
+                "power_kw": 200,
+                "status": "occupied",
+            },
+            {
+                "connector_id": "techpark-ccs-b",
+                "type": "CCS2",
+                "power_kw": 200,
+                "status": "available",
+            },
+            {
+                "connector_id": "techpark-chademo",
+                "type": "CHAdeMO",
+                "power_kw": 50,
+                "status": "available",
+            },
+        ],
+    },
 }
 
 
@@ -260,6 +356,25 @@ def occupy_connector(station_id: str) -> Optional[Dict[str, Any]]:
             return connector
 
     return None
+
+
+def release_connector(station_id: str, connector_id: str) -> Optional[Dict[str, Any]]:
+    station = CHARGING_STATIONS.get(station_id)
+    if not station:
+        return None
+
+    for connector in station["connectors"]:
+        if connector["connector_id"] == connector_id:
+            connector["status"] = "available"
+            return connector
+    return None
+
+
+def station_has_available_connector(station_id: str) -> bool:
+    station = CHARGING_STATIONS.get(station_id)
+    if not station:
+        return False
+    return any(connector["status"] == "available" for connector in station["connectors"])
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

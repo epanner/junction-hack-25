@@ -1,6 +1,9 @@
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-CHARGING_SESSIONS = [
+from data.charging_stations import release_connector
+
+CHARGING_SESSIONS: List[Dict[str, Any]] = [
     {
         "id": "sess_001",
         "date": "Today, 10:30 AM",
@@ -14,6 +17,8 @@ CHARGING_SESSIONS = [
         "startTime": "10:30 AM",
         "startSoC": 45,
         "endSoC": None,
+        "connectorId": "connector-ccs-a",
+        "connectorType": "CCS2",
     },
     {
         "id": "sess_000",
@@ -29,6 +34,7 @@ CHARGING_SESSIONS = [
         "endTime": "5:45 PM",
         "startSoC": 34,
         "endSoC": 88,
+        "connectorId": None,
     },
     {
         "id": "sess_123",
@@ -42,6 +48,7 @@ CHARGING_SESSIONS = [
         "status": "completed",
         "startSoC": 51,
         "endSoC": 82,
+        "connectorId": None,
     },
     {
         "id": "sess_087",
@@ -55,10 +62,24 @@ CHARGING_SESSIONS = [
         "status": "completed",
         "startSoC": 62,
         "endSoC": 86,
+        "connectorId": None,
     },
 ]
 
-ACTIVE_SESSION_ID = "sess_001"
+ACTIVE_SESSION_ID: Optional[str] = "sess_001"
+
+
+def _set_active_session(session_id: Optional[str]) -> None:
+    global ACTIVE_SESSION_ID
+    ACTIVE_SESSION_ID = session_id
+
+
+def _release_session_connector(session: Dict[str, Any]) -> None:
+    station_id = session.get("stationId")
+    connector_id = session.get("connectorId")
+    if station_id and connector_id:
+        release_connector(station_id, connector_id)
+        session["connectorId"] = None
 
 
 def list_charging_sessions(limit: Optional[int] = None) -> List[dict]:
@@ -84,6 +105,30 @@ def create_charging_session(entry: Dict[str, Any]) -> Dict[str, Any]:
     Inserts a newly created session at the top of the history list.
     """
     CHARGING_SESSIONS.insert(0, entry)
+    if entry.get("status") in {"scheduled", "ongoing"}:
+        _set_active_session(entry["id"])
     return entry
 
 
+def cancel_charging_session(session_id: str) -> Optional[dict]:
+    session = get_charging_session(session_id)
+    if not session:
+        return None
+    _release_session_connector(session)
+    session["status"] = "cancelled"
+    session.setdefault("endTime", datetime.utcnow().isoformat() + "Z")
+    if ACTIVE_SESSION_ID == session_id:
+        _set_active_session(None)
+    return session
+
+
+def complete_charging_session(session_id: str) -> Optional[dict]:
+    session = get_charging_session(session_id)
+    if not session:
+        return None
+    _release_session_connector(session)
+    session["status"] = "completed"
+    session.setdefault("endTime", datetime.utcnow().isoformat() + "Z")
+    if ACTIVE_SESSION_ID == session_id:
+        _set_active_session(None)
+    return session

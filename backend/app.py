@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from adapters.denso_did import DensoDIDClient
 from config import settings
 from routers.charging_sessions import router as charging_sessions_router
+from routers.negotiator import router as negotiator_router
 from routers.session_auth import router as session_auth_router
 from routers.stations import router as stations_router
 from routers.trust_anchor import router as trust_anchor_router
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(session_auth_router)
 app.include_router(stations_router)
 app.include_router(trust_anchor_router)
+app.include_router(negotiator_router)
 app.include_router(users_router)
 app.include_router(vehicles_router)
 app.include_router(charging_sessions_router)
