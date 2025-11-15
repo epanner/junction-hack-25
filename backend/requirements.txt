@@ -3,3 +3,7 @@ uvicorn[standard]
 httpx[phttp2]
 pydantic
 pydantic-settings
+
+# Solana
+solana
+solders
