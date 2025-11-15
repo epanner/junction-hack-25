@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from data.charging_stations import get_station_snapshot, occupy_connector
 from services.did_denso_verification import DensoDIDVerificationService
+from services.pricing import pricing_engine
 
 router = APIRouter(prefix="/api/sessions", tags=["session-auth"])
 
@@ -32,6 +33,7 @@ class SessionAuthResponse(BaseModel):
     charger: Dict[str, Any]
     reserved_connector: Optional[Dict[str, Any]] = None
     verification: Dict[str, Any]
+    pricing: Dict[str, Any]
 
 
 @router.post("/authenticate", response_model=SessionAuthResponse)
@@ -63,6 +65,13 @@ async def authenticate_session(
         else:
             status = "waitlist"
 
+    pricing = pricing_engine.calculate_session_cost(
+        vehicle_vin=payload.vehicle_vin,
+        battery_id=payload.battery_id,
+        station_snapshot=station_snapshot,
+        reserved_connector=reserved_connector,
+    )
+
     return SessionAuthResponse(
         status=status,
         user_id=payload.user_id,
@@ -71,5 +80,6 @@ async def authenticate_session(
         charger=station_snapshot,
         reserved_connector=reserved_connector,
         verification=verification,
+        pricing=pricing,
     )
 
