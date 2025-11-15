@@ -1,70 +1,11 @@
-﻿SecureCharge (subjected to change later)
-===============
 
-Introduction
----------------
+  # ChargeID Web App UI
 
-### Idea
+  This is a code bundle for ChargeID Web App UI. The original project is available at https://www.figma.com/design/wfAhPT4mJ27lBGDlHdLoiC/ChargeID-Web-App-UI.
 
-### Tech-Stack
+  ## Running the code
 
-#### Backend: FastAPI
-#### Frontend (webapp): React
-...
+  Run `npm i` to install the dependencies.
 
-Getting started
----------------
-
-### Clone the repository:
-
-```bash
-git clone https://github.com/epanner/junction-2025.git
-cd junction-2025
-```
-
-### Running the application (development)
-
-#### Backend
-
-```bash
-cd backend
-
-```
-
-To run the FastAPI application locally, use the following command (in the backend folder, if you're in project root add the folder name in front). Make sure you are in the virtual environment if you created one.
-
-```bash
-fastapi dev app.py
-
-```
-
-##### Create and activate a Python virtual environment (recommended):
-
-On macOS / Linux:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-On Windows (PowerShell):
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-##### Install dependencies:
-
-###### Upgrade pip (optional)
-
-```bash
-python -m pip install --upgrade pip
-```
-
-###### Install all packages from requirements.txt
-
-```bash
-pip install -r requirements.txt
-
-```
+  Run `npm run dev` to start the development server.
+  
