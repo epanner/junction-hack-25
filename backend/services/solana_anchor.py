@@ -4,7 +4,7 @@ import os
 from threading import Lock
 from typing import Any, Dict, List, Optional
 
-from adapters.chain.models import AnchorRecord
+from data.solana_anchor_models import AnchorRecord
 from config import settings
 
 
