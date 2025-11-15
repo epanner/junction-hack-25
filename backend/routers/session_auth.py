@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
 from data.charging_stations import get_station_snapshot, occupy_connector
@@ -58,12 +58,18 @@ async def authenticate_session(
     status = "verified"
 
     if payload.reserve_connector:
+        if station_snapshot.get("available_connectors", 0) <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="No connectors available at this station."
+            )
         reserved_connector = occupy_connector(payload.charger_id)
-        if reserved_connector:
-            status = "reserved"
-            station_snapshot = get_station_snapshot(payload.charger_id) or station_snapshot
-        else:
-            status = "waitlist"
+        if not reserved_connector:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Unable to reserve a connector. Please choose a different station.",
+            )
+        status = "reserved"
+        station_snapshot = get_station_snapshot(payload.charger_id) or station_snapshot
 
     pricing = pricing_engine.calculate_session_cost(
         vehicle_vin=payload.vehicle_vin,

@@ -358,6 +358,25 @@ def occupy_connector(station_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def release_connector(station_id: str, connector_id: str) -> Optional[Dict[str, Any]]:
+    station = CHARGING_STATIONS.get(station_id)
+    if not station:
+        return None
+
+    for connector in station["connectors"]:
+        if connector["connector_id"] == connector_id:
+            connector["status"] = "available"
+            return connector
+    return None
+
+
+def station_has_available_connector(station_id: str) -> bool:
+    station = CHARGING_STATIONS.get(station_id)
+    if not station:
+        return False
+    return any(connector["status"] == "available" for connector in station["connectors"])
+
+
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     r = 6371.0
     d_lat = math.radians(lat2 - lat1)
