@@ -68,7 +68,7 @@ class SolanaAnchorService:
                 os.environ.setdefault("SOLANA_RPC_URL", settings.solana_rpc_url)
                 os.environ.setdefault("SOLANA_KEYPAIR_PATH", settings.solana_keypair_path)
 
-                from adapters.chain import services as chain_services
+                from adapters import solana as chain_services
 
                 self._impl = chain_services
             except Exception as exc:  # pylint: disable=broad-except
