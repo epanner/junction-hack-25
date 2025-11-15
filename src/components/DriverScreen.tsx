@@ -84,6 +84,7 @@ export function DriverScreen() {
   const [targetSoC, setTargetSoC] = useState(80);
   const [departureTime, setDepartureTime] = useState('15:00');
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
+  const [isSmartMode, setIsSmartMode] = useState(false);
 
   const selectedStation = selectedStationId 
     ? stations.find(s => s.id === selectedStationId) || null
@@ -91,12 +92,21 @@ export function DriverScreen() {
 
   const handleStationSelect = (stationId: string) => {
     setSelectedStationId(stationId);
-    setIsSheetExpanded(false);
+    if (!isSmartMode) {
+      setIsSheetExpanded(false);
+    }
   };
 
   const handleBook = () => {
     alert('Booking charging session...');
     // TODO: Navigate to active session view
+  };
+
+  const handleSmartModeChange = (smartMode: boolean) => {
+    setIsSmartMode(smartMode);
+    if (smartMode) {
+      setIsSheetExpanded(true);
+    }
   };
 
   return (
@@ -106,13 +116,14 @@ export function DriverScreen() {
         {activeTab === 'map' && (
           <>
             {/* Full-screen Map */}
-            <div className="absolute inset-0" style={{ paddingBottom: '340px' }}>
+            <div className="absolute inset-0">
               <MapView
                 userLat={37.7749}
                 userLng={-122.4194}
                 stations={stations}
                 selectedStation={selectedStationId || undefined}
                 onStationSelect={handleStationSelect}
+                onSmartModeChange={handleSmartModeChange}
               />
             </div>
 
@@ -126,6 +137,7 @@ export function DriverScreen() {
               onBook={handleBook}
               isExpanded={isSheetExpanded}
               onToggleExpand={() => setIsSheetExpanded(!isSheetExpanded)}
+              isSmartMode={isSmartMode}
             />
           </>
         )}
