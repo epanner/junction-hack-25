@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, HTTPException
@@ -40,9 +40,23 @@ router = APIRouter(prefix="/api/negotiator", tags=["negotiator"])
 
 @router.post("/plan", response_model=NegotiationResponse)
 async def negotiate_plan(payload: NegotiationRequest) -> NegotiationResponse:
-    departure_ts = payload.departure_time or (datetime.utcnow() + timedelta(hours=2))
-    if departure_ts < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Departure time must be in the future")
+    now = datetime.utcnow().replace(tzinfo=timezone.utc)
+    if payload.departure_time:
+        departure_ts = payload.departure_time
+        if departure_ts.tzinfo is None:
+            departure_ts = departure_ts.replace(tzinfo=timezone.utc)
+        else:
+            departure_ts = departure_ts.astimezone(timezone.utc)
+    else:
+        departure_ts = now + timedelta(hours=2)
+
+    min_departure = now + timedelta(minutes=5)
+    max_departure = now + timedelta(hours=12)
+
+    if departure_ts < min_departure:
+        raise HTTPException(status_code=400, detail="Departure time must be at least 5 minutes in the future")
+    if departure_ts > max_departure:
+        raise HTTPException(status_code=400, detail="Departure time must be within the next 12 hours")
 
     battery_agent = BatteryDataAgent(
         vin=payload.vehicle_vin,

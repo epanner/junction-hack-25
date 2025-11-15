@@ -1,22 +1,24 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List, Optional, Literal
 
-from backend.data.battery_birth_certificate import BATTERY_BIRTH_CERTIFICATE
-from backend.data.battery_soh import BATTERY_SOH_RECORDS
-from backend.data.vehicle_sessions import VEHICLE_SOC_HISTORY
-from backend.data.charging_stations import (
+from data.battery_birth_certificate import BATTERY_BIRTH_CERTIFICATE
+from data.battery_soh import BATTERY_SOH_RECORDS
+from data.vehicle_sessions import VEHICLE_SOC_HISTORY
+from data.vehicles import VEHICLE_BATTERY_STATUS
+from data.charging_stations import (
     get_station_snapshot,
     find_nearest_station,
     CHARGING_STATIONS,
 )
-from backend.services.pricing import pricing_engine  # <-- NEW: cost estimation
+from services.pricing import pricing_engine  # <-- NEW: cost estimation
+from config import settings
 
 from openai import OpenAI
 
 client = OpenAI(
     base_url="https://api.featherless.ai/v1",
-    api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=settings.openai_api_key or os.getenv("OPENAI_API_KEY"),
 )
 
 
@@ -39,9 +41,17 @@ class BatteryDataAgent:
         return latest_record
 
     def _get_current_soc(self) -> float:
-        history = VEHICLE_SOC_HISTORY[self.vin]["values"]
-        # Last SOC sample
-        return history[-1]["value"] / 100.0  # convert percent → fraction
+        history = VEHICLE_SOC_HISTORY.get(self.vin, {}).get("values", [])
+        if history:
+            last_value = history[-1]["value"]
+            if 0.0 < last_value < 100.0:
+                return last_value / 100.0
+
+        status_value = VEHICLE_BATTERY_STATUS.get("currentSoC")
+        if status_value is not None:
+            return min(max(status_value / 100.0, 0.0), 1.0)
+
+        return 0.5
 
     def build_battery_summary(self) -> Dict[str, Any]:
         """
@@ -141,7 +151,7 @@ class ChargingStationAgent:
         energy_needed = battery_info["energy_needed_kwh"]
         max_safe_power = battery_info["max_safe_power_kw"]
 
-        now = datetime.utcnow()
+        now = datetime.utcnow().replace(tzinfo=timezone.utc)
         time_window_h = max((departure_time - now).total_seconds() / 3600.0, 0.0)
 
         if energy_needed <= 0:
@@ -211,6 +221,8 @@ class ChargingStationAgent:
                         "station_name": station_snapshot["name"],
                         "distance_km": distance_km,
                         "location": station_snapshot["location"],
+                        "available_connectors": station_snapshot.get("available_connectors"),
+                        "total_connectors": station_snapshot.get("total_connectors"),
                         "connector_id": connector["connector_id"],
                         "connector_type": connector["type"],
                         "connector_power_kw": connector_power,
@@ -356,8 +368,8 @@ class NegotiatorAgent:
                 "station_name": chosen["station_name"],
                 "distance_km": chosen["distance_km"],
                 "max_power_kw": chosen["connector_power_kw"],
-                "available_connectors": chosen.get("available_connectors", "-"),
-                "total_connectors": chosen.get("total_connectors", "-"),
+                "available_connectors": chosen.get("available_connectors"),
+                "total_connectors": chosen.get("total_connectors"),
             },
             "charging_details": {
                 "current_level_percent": round(battery_info["soc_now"] * 100),

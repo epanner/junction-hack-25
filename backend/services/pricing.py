@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, Optional
 
-from backend.data.battery_soh import get_latest_battery_soh, get_soh_capacity_kwh
-from backend.data.vehicle_sessions import VEHICLE_SOC_HISTORY
-from backend.data.vehicle_specs import get_vehicle_capacity_kwh
+from data.battery_soh import get_latest_battery_soh, get_soh_capacity_kwh
+from data.vehicle_sessions import VEHICLE_SOC_HISTORY
+from data.vehicle_specs import get_vehicle_capacity_kwh
 
 DEFAULT_SESSION_ENERGY_KWH = 28.0
 SESSION_ACTIVATION_FEE_EUR = 0.75

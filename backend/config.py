@@ -14,6 +14,10 @@ class Settings(BaseSettings):
         default=None,
         description="Path to the solana-keygen JSON keypair used as the fee payer",
     )
+    openai_api_key: str | None = Field(
+        default=None,
+        description="API key for negotiator LLM integrations",
+    )
 
 
 settings = Settings()
