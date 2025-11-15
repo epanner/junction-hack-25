@@ -1,0 +1,40 @@
+CHARGING_SESSION_VC = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://itn.mobi/2020/credentials/v1",
+        "https://hackathon.didgateway.eu/public/bbc.jsonld",
+        "https://hackathon.didgateway.eu/public/charger.jsonld",
+        "https://w3id.org/security/suites/ed25519-2020/v1",
+    ],
+    "id": "urn:uuid:8f4974fb-f790-4ea9-a261-da238dcaf924",
+    "type": ["VerifiableCredential", "ChargingSessionEnvelope"],
+    "issuer": {"id": "did:itn:EZCE8tY6nXCa48odCZakbj"},
+    "issuanceDate": "2025-11-06T04:45:28.799Z",
+    "expirationDate": "2027-11-06T04:45:28.799Z",
+    "holder": "did:itn:Nu9auYxEfHnH45XwEL6TZh",
+    "credentialSubject": {
+        "type": "ChargingSessionEnvelope",
+        "envelope_id": "e8ef043d-cc41-4e51-8c47-25c1f57b394f",
+        "envelope_version": "1.0.0",
+        "schema_uri": "urn:cloudcharger:schemas:ocpi-session-envelope:1",
+        "object_type": "ocpi_session",
+        "last_updated": "2025-09-30T13:37:22Z",
+        "session_id": "983473479",
+        "start_ts": "2025-09-30T05:00:43Z",
+        "end_ts": "2025-09-30T13:37:22Z",
+    },
+    "credentialStatus": {
+        "id": "https://core.dndapp.nadenso.com/revocation-registry/SmtRevocationList2023/d0e7f0b7-0daf-4aa7-86a5-c3c0dc6172da/status/b8b931f2ae83096dc22f4a6a18958b4a4abc2ad8f8093096bdc618bf89d86642",
+        "type": "SmtRevocationList2023Entry",
+        "statusListIndex": "b8b931f2ae83096dc22f4a6a18958b4a4abc2ad8f8093096bdc618bf89d86642",
+        "statusListCredential": "https://core.dndapp.nadenso.com/revocation-registry/SmtRevocationList2023/d0e7f0b7-0daf-4aa7-86a5-c3c0dc6172da",
+    },
+    "proof": {
+        "type": "Ed25519Signature2020",
+        "created": "2025-11-06T04:45:30Z",
+        "verificationMethod": "did:itn:EZCE8tY6nXCa48odCZakbj#z6MkrpFc8LsQ26DwaxGM3BNzQwHELcxtNvoggMT4kcpmY88s",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "z4JK24qEmATeRmffCfLvoDVcJqLtFMafD9DVJFu7G7pQXifNsCX2wvroUVk8fsMFJbsq3Uxu3SiRtxJGQwtUF4JfF",
+    },
+}
+

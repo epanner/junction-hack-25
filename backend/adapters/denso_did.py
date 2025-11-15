@@ -60,6 +60,32 @@ class DensoDIDClient:
         )
         return self._handle_response(resp)
 
+    async def update_credential(self, vc_uuid: str, credential_subject: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Wraps POST /api/update-credential.
+        Revokes the previous VC identified by vc_uuid and issues a new one with the supplied subject.
+        """
+        payload = {"credentialSubject": credential_subject}
+        resp = await self.client.post(
+            "/api/update-credential",
+            params={"vc_uuid": vc_uuid},
+            json=payload,
+            headers=self._headers(),
+        )
+        return self._handle_response(resp)
+
+    async def request_presentation(self, credentials: Any) -> Dict[str, Any]:
+        """
+        Wraps POST /api/request-presentation.
+        Builds a verifiable presentation from an array of credentials payloads.
+        """
+        resp = await self.client.post(
+            "/api/request-presentation",
+            json=credentials,
+            headers=self._headers(),
+        )
+        return self._handle_response(resp)
+
     # -------------------------
     # Internal helpers
     # -------------------------
