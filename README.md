@@ -29,12 +29,12 @@ And yet:
 ## ✅ Solution: ChargeID  
 **ChargeID** is a universal smart-charging layer that connects **driver, vehicle, and charger** through secure decentralized identities — while an AI agent negotiates the best charging option in real time.  
 
-From the slides:
-
 - Smart EV Charging Across All Vendors  
 - Full Transparency  
 - AI-powered Negotiation & Optimization  
 - Secure DID-based information exchange (Solana)
+
+![Landing Page](./_assets/chargeID2.png)
 
 ---
 
@@ -72,6 +72,8 @@ This results in the **best possible charging plan** — displayed with full tran
 4. Best match found (with match score)  
 5. Charging session overview  
 6. Real-time charging metrics  
+
+![App Flow](./_assets/chargeID3.png)
 
 ---
 
