@@ -2,6 +2,8 @@
 # ⚡ ChargeID — Your AI Passport to the Grid  
 ### **AI-Optimized EV Charging with Decentralized Identity — secured by Solana**
 
+![Logo](./_assets/chargeID1.png)
+
 > Built in 48 hours at **Junction 2025** by Khai Minh Mai, Mai Phan, Tuan Kiet, and Elias Panner.  
 > “Plug in, power up, glide on.”
 
